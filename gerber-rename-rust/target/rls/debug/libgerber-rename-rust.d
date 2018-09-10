@@ -1,0 +1,1 @@
+/home/biacco42/Documents/project/rust/gerber-rename-rust/gerber-rename-rust/target/rls/debug/libgerber-rename-rust.rmeta: /home/biacco42/Documents/project/rust/gerber-rename-rust/gerber-rename-rust/src/main.rs
