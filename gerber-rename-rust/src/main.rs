@@ -9,31 +9,31 @@ struct GerberExtension<'a> {
 
 const GERBER_EXTENSIONS: [GerberExtension; 8] = [
     GerberExtension {
-        from: "-B.SilkS.gbo",
-        to: ".GBO",
-    },
-    GerberExtension {
-        from: "-B.Mask.gbs",
-        to: ".GBS",
-    },
-    GerberExtension {
-        from: "-B.Cu.gbl",
-        to: ".GBL",
-    },
-    GerberExtension {
-        from: "-F.Cu.gtl",
+        from: "-F.Cu.gbr",
         to: ".GTL",
     },
     GerberExtension {
-        from: "-F.Mask.gts",
+        from: "-B.Cu.gbr",
+        to: ".GBL",
+    },
+    GerberExtension {
+        from: "-F.Mask.gbr",
         to: ".GTS",
     },
     GerberExtension {
-        from: "-F.SilkS.gto",
+        from: "-B.Mask.gbr",
+        to: ".GBS",
+    },
+    GerberExtension {
+        from: "-F.SilkS.gbr",
         to: ".GTO",
     },
     GerberExtension {
-        from: "-Edge.Cuts.gm1",
+        from: "-B.SilkS.gbr",
+        to: ".GBO",
+    },
+    GerberExtension {
+        from: "-Edge.Cuts.gbr",
         to: ".GML",
     },
     GerberExtension {
@@ -60,25 +60,25 @@ fn main() {
     println!("Open : {:?}\n", path);
 
     let dir_entries = fs::read_dir(path).unwrap();
-    dir_entries.flat_map(|entry| {
+    dir_entries.flat_map(|entry| -> Vec<(PathBuf, PathBuf)> {
         let file = entry.unwrap();
         let file_name = file.file_name().into_string().unwrap().clone();
-        let file_name_copy = file_name.clone();
 
         GERBER_EXTENSIONS
             .iter()
-            .filter(move |ext| file_name.contains(ext.from))
-            .map(move |ext| {
-                let new_file_name = file_name_copy.replace(ext.from, ext.to);
-                let new_file_path = file.path().with_file_name(new_file_name);
+            .filter(|ext| file_name.contains(ext.from))
+            .map(|ext| {
+                let new_file_name = file_name.replace(ext.from, ext.to);
+                let new_file_path = file.path().with_file_name(&new_file_name);
+
                 (file.path(), new_file_path)
-            })
+            }).collect()
     }).for_each(|(old_path, new_path)| {
         match fs::rename(&old_path, &new_path) {
             Ok(_) => {
                 let old_file_name = old_path.file_name().unwrap().to_str().unwrap();
                 let new_file_name = new_path.file_name().unwrap().to_str().unwrap();
-                println!("{} -> {}", old_file_name, new_file_name)
+                println!("{:?} -> {:?}", &old_file_name, &new_file_name)
             }
             Err(err) => println!("Error: {}", err)
         };
